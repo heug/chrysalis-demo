@@ -6,30 +6,42 @@ jobs:
       - image: circleci/node:6
     steps:
       - checkout
-      - run: echo "A first hello"
-      - run: sleep 5
+      - run: mkdir -p my_workspace
+      - run: echo "A first hello" > my_workspace/echo-output
+      - persist_to_workspace:
+          root: my_workspace
+          paths:
+            - echo-output
   test_a:
     docker:
       - image: circleci/node:6
     steps:
-      - checkout
-      - run: echo "A more familiar hi"
-      - run: sleep 5
+      - attach_workspace:
+          at: my_workspace
+      - run: cat my_workspace/echo-output
   test_b:
     docker:
       - image: circleci/node:6
     steps:
-      - checkout
-      - run: echo "A localized hola"
-      - run: sleep 5
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: my_workspace
+      - run: |
+          # this will fail intentionally, we'll use SSH to debug and fix
+          if [[ $(cat my_workspace/echo-output) == "Trying out workspaces" ]]; then
+            echo "It worked!";
+          else
+            echo "Nope!"; exit 1
+          fi
   deploy:
     docker:
       - image: circleci/node:6
     steps:
-      - checkout
-      - run: echo "a final goodbye"
-      - run: sleep 5
-
+      - attach_workspace:
+          at: my_workspace
+      - run: |
+          echo "Deploying message!"
+          cat my_workspace/echo-output
 
 workflows:
   version: 2
