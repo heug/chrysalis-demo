@@ -7,3 +7,17 @@ jobs:
     steps:
       - checkout
       - run: echo "A first hello"
+  test:
+    docker:
+      - image: circleci/node:6
+    steps:
+      - checkout
+      - run: echo "A more familiar hi"
+      - run: sleep 5
+
+workflows:
+  versions: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
