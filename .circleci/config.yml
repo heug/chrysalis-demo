@@ -16,7 +16,7 @@ jobs:
       - run: sleep 5
 
 workflows:
-  versions: 2
+  version: 2
   build_and_test:
     jobs:
       - build
